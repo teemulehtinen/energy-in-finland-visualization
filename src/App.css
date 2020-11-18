@@ -1,6 +1,85 @@
-
-.Timeline {
-    width: 90%;
-    height: 300px;
+.App {
+    position: relative;
+    max-width: 1600px;
     margin: 0 auto;
+    padding: 1em;
+}
+.column {
+    border: 1px solid grey;
+    border-radius: 0.5em;
+    background: #f0f0f0;
+    padding: 0.5em;
+}
+.column > h1 {
+    text-align: center;
+    color: gray;
+}
+.left {
+    position: absolute;
+    width: 45%;
+    left: 10px;
+}
+.right {
+    position: absolute;
+    width: 45%;
+    right: 10px;
+}
+.center {
+    z-index: 100;
+    position: absolute;
+    top: 180px;
+    left: 50%;
+    display: block;
+    width: 200px;
+    margin-left: -100px;
+    text-align: center;
+}
+.Year h1 {
+    margin: 0;
+    font-size: 5em;
+    font-weight: bold;
+    color: lightgray;
+    text-shadow:
+        -1px -1px 0 grey,
+        1px -1px 0 grey,
+        -1px 1px 0 grey,
+        1px 1px 0 grey;
+}
+.Year button {
+    font-size: 3em;
+    display: block;
+    padding: 0 0.2em 0.1em;
+    margin: 0 auto 0.3em auto;
+}
+.Year select {
+    font-size: 1.4em;
+}
+.transparency {
+    margin-top: 720px;
+    font-size: 2em;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.Timeline svg {
+    width: 100%;
+    height: 250px;
+}
+.Timeline .wrap {
+    font-family: sans-serif;
+    cursor: pointer;
+    transform: translate(60px, 10px);
+}
+.Timeline .unit {
+    transform: translate(8px, 10px);
+    font-size: 12pt;
+}
+.Timeline .xaxis {
+    transform: translate(0, 210px);
+}
+
+.BarChartRace svg {
+    width: 100%;
+    height: 350px;
 }

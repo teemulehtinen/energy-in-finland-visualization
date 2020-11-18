@@ -1,135 +1,64 @@
 import { csv } from 'd3'
-import Timeline from './components/Timeline'
-import './App.css'
 import { useEffect, useState } from 'react'
+import './App.css'
+import { parseConsumptionRow, consumptionKeys } from './data/consumption'
+import { parseEmissionsRow, emissionsKeys, emissionsZeroYears } from './data/emissions'
+import { rank } from './data/rank'
+import { colors } from './data/colors'
+import { names } from './data/names'
+import Year from './components/Year'
+import Timeline from './components/Timeline'
+import BarChartRace from './components/BarChartRace'
 
 const App = () => {
 
-  const years = [new Date(1960, 0, 1), new Date(2018, 0, 1)]
+    const interpolationSteps = 3
 
-  const volumeKeys = ['oils','coal','naturalgas'/*,'industryreactions'*/,'peat','wood','nuclear','hydro','wind','heatpumps','electricityimport','other']
-  const emissionKeys = ['heavyoil','lightoil','transportoil','coal','naturalgas','peat','otherfossil','wood','otherbio']
-  const colors = {
-    oils: '#124E54',
-    heavyoil: '#124E54',
-    lightoil: '#00868B',
-    transportoil: '#208E97',
-    coal: '#333333',
-    naturalgas: '#75B5BE',
-    industryreactions: '#517071',
-    peat: '#888888',
-    otherfossil: '#ADADAD',
-    wood: '#6ED65C',
-    otherbio: '#C5EFBE',
-    nuclear: '#EAD977',
-    hydro: '#73D7FF',
-    wind: '#C4EEFF',
-    heatpumps: '#C4FFF3',
-    electricityimport: '#BAD1FF',
-    other: '#EEEEEE'
-  }
-  const names = {
-    oils: 'Oil',
-    heavyoil: 'Heavy fuel oil',
-    lightoil: 'Light fuel oil',
-    transportoil: 'Transport fuels',
-    coal: 'Coal',
-    naturalgas: 'Natural gas',
-    industryreactions: 'Industry reactions',
-    peat: 'Peat',
-    otherfossil: 'Other fossil fuels',
-    wood: 'Wood',
-    otherbio: 'Other non-fossil fuels',
-    nuclear: 'Nuclear energy',
-    hydro: 'Hydro power',
-    wind: 'Wind power',
-    heatpumps: 'Heat pumps',
-    electricityimport: 'Electricity import',
-    other: 'Recycled sources',
-    gasoline: 'Gasoline',
-    biogasoline: 'Gasoline bio component',
-    diesel: 'Diesel',
-    biodiesel: 'Biodiesel',
-    lpg: 'Propane',
-    otheroils: 'Other oils',
-    woodsmall: 'Wood small-scale',
-    woodindustry: 'Wood industrial',
-    recoveredfossil: 'Fossil waste',
-    recoveredbio: 'Non-fossil waste',
-    biogas: 'Biogas',
-    solar: 'Solar energy',
-    hydrogen: 'Hydrogen'
-  }
+    const [rawConsumption, setRawConsumption] = useState([])
+    const [rawEmissions, setRawEmissions] = useState([])
+    const [consumption, setConsumption] = useState([])
+    const [emissions, setEmissions] = useState([])
+    const [frame, setFrame] = useState(0)
+    const [pause, setPause] = useState(false)
+    const [filter, setFilter] = useState('all')
 
-  const [volumes, setVolumes] = useState([])
-  const [emissions, setEmissions] = useState([])
+    useEffect(() => {
+        csv('primaryenergy.csv', parseConsumptionRow).then(data => setRawConsumption(data))
+        csv('energysectorco2.csv', parseEmissionsRow).then(data => setRawEmissions(data))
+    }, [])
 
-  useEffect(() => {
-    
-    csv('primaryenergy.csv', d => ({
-      date: new Date(+d.year, 0, 1),
-      oils: +d.oilstotal,
-      coal: +d.coaltotal,
-      naturalgas: +d.naturalgas,
-      nuclear: +d.nuclearenergy,
-      hydro: +d.hydropower,
-      wind: +d.windpower,
-      wood: +d.woodtotal,
-      peat: +d.peat,
-      heatpumps: +d.heatpumps,
-      other: +d.recoveredrecycledtotal,
-      industryreactions: +d.industryreactions,
-      electricityimport: +d.electricityimport,
-      details: {
-        gasoline: +d.gasoline,
-        biogasoline: +d.biogasoline,
-        diesel: +d.diesel,
-        biodiesel: +d.biodiesel,
-        lpg: +d.lpg,
-        lightoil: +d.lightfueloil,
-        heavyoil: +d.heavyfueloil,
-        otheroils: (+d.otheroils) + (+d.biofueloil) + (+d.recycledoil) + (+d.refinerygas),
-        coal: +d.coaltotal,
-        naturalgas: +d.naturalgas,
-        nuclear: +d.nuclearenergy,
-        hydro: +d.hydropower,
-        wind: +d.windpower,
-        woodsmall: +d.woodsmall,
-        woodindustry: (+d.blackliquor) + (+d.woodindustry),
-        peat: +d.peat,
-        recoveredfossil: (+d.recoveredfossil) + (+d.demolitionfossil) + (+d.otherwastefuels),
-        recoveredbio: (+d.recoveredbio) + (+d.demolitionbio) + (+d.otherbioenergy),
-        biogas: +d.biogas,
-        solar: +d.solarenergy,
-        hydrogen: +d.hydrogen,
-        heatpumps: +d.heatpumps,
-        industryreactions: +d.industryreactions,
-        electricityimport: +d.electricityimport
-      }
-    })).then(data => setVolumes(data))
+    useEffect(() => {
+        if (rawConsumption.length > 0 && rawEmissions.length > 0) {
+            setConsumption(rank(rawConsumption, consumptionKeys[filter], interpolationSteps))
+            const years = [rawConsumption[0].date.getFullYear(), rawEmissions[0].date.getFullYear()]
+            setEmissions(rank(emissionsZeroYears(years[0], years[1]).concat(rawEmissions), emissionsKeys[filter], interpolationSteps))
+        }
+    }, [rawConsumption, rawEmissions, filter])
 
-    const shareEstimateOfBioBefore1990 = 18.3 / 52.6 // share in 1990
-    csv('energysectorco2.csv', d => ({
-      date: new Date(+d.year, 0, 1),
-      heavyoil: +d.heavyfueloil,
-      lightoil: (+d.lightfueloil) + (+d.otheroils),
-      transportoil: +d.transportfuels,
-      coal: (+d.coal) + (+d.othercoals),
-      naturalgas: +d.naturalgas,
-      peat: +d.peat,
-      otherfossil: (+d.year) < 1990 ? (1 - shareEstimateOfBioBefore1990) * +d.total : ((+d.otherfossilfuels) + (+d.co2transfer)),
-      wood: +d.woodfuels,
-      otherbio: (+d.year) < 1990 ? shareEstimateOfBioBefore1990 * +d.total : +d.othernonfossilfuels
-    })).then(data => setEmissions(data))
-
-  }, [])
-  
-  return (
-    <div className="App">
-      <Timeline title="Energy consumption by source" unit="TJ" data={volumes} years={years} keys={volumeKeys} colors={colors}></Timeline>
-      <Timeline title="Energy sector carbon dioxide emissions" unit="10⁹ CO₂" data={emissions} years={years} keys={emissionKeys} colors={colors}></Timeline>
-    </div>
-  )
+    return (
+        <div className="App">
+            <div className="left column">
+                <h1>Energy consumption by source</h1>
+                <BarChartRace data={consumption} frame={frame} setFrame={setFrame} pause={pause} names={names} colors={colors}></BarChartRace>
+                <Timeline unit="TJ" data={consumption} frame={frame} setFrame={setFrame} colors={colors}></Timeline>
+            </div>
+            <div className="right column">
+                <h1>Energy sector carbon dioxide emissions</h1>
+                <BarChartRace data={emissions} frame={frame} setFrame={setFrame} pause={pause} names={names} colors={colors} reverse={true}></BarChartRace>
+                <Timeline unit="10⁹ CO₂" data={emissions} frame={frame} setFrame={setFrame} colors={colors}></Timeline>
+            </div>
+            <div className="center">
+                <Year data={consumption} frame={frame} pause={pause} setPause={setPause} setFilter={setFilter}></Year>
+                {filter === 'heating' &&
+                    <p>Includes combined electricity production.</p>
+                }
+                {filter === 'electricity' &&
+                    <p>Excludes electricity from combined heat production.</p>
+                }
+            </div>
+            <button className="transparency" title="Transparency Badge">🕵️</button>
+        </div>
+    )
 }
 
 export default App

@@ -1,76 +1,90 @@
-import { area, axisBottom, axisLeft, max, scaleLinear, scaleOrdinal, scaleTime, select, stack } from "d3"
-import { useCallback } from "react"
+import { area, axisBottom, axisLeft, easeLinear, extent, max, pointer, scaleLinear, scaleOrdinal, scaleTime, select, stack } from "d3"
+import { useEffect, useRef } from "react"
 
-const Timeline = ({title, unit, data, years, keys, colors}) => {
+const Timeline = ({unit, data, frame, setFrame, colors}) => {
+    const frameDuration = 250
 
-    const d3ref = useCallback(node => {
+    const ref = useRef()
 
-        const margin = {top:10, right:30, bottom:30, left:60}
-
-        const selectOrCreate = (selection, creator) => selection.empty() ? creator() : selection
-
-        if (node !== null) {
-            const width = node.offsetWidth - margin.left - margin.right
-            const height = node.offsetHeight - margin.top - margin.bottom
-            const palette = scaleOrdinal()
-                .domain(keys)
-                .range(keys.map(k => colors[k]))
-            const series = stack()
-                .keys(keys)
-                (data)
-            
-            const svg = selectOrCreate(select(node).select('svg'), () => select(node).append('svg'))
-                .attr('width', node.offsetWidth)
-                .attr('height', node.offsetHeight)
-            const wrap = selectOrCreate(svg.select('.wrap'), () => svg.append('g').attr('class', 'wrap'))
-                .attr('transform', `translate(${margin.left},${margin.top})`)
-
-            selectOrCreate(wrap.select('.title'), () => wrap.append('text').attr('class', 'title'))
-                .text(title)
-                .attr('font-family', 'sans-serif')
-                .attr('font-size', 14)
-                .attr('transform', `translate(8,${margin.top})`)
-
-            selectOrCreate(wrap.select('.unit'), () => wrap.append('text').attr('class', 'unit'))
-                .text(unit)
-                .attr('font-family', 'sans-serif')
-                .attr('font-size', 10)
-                .attr('text-anchor', 'end')
-                .attr('transform', `translate(-8,${margin.top})`)
-
-            const x = scaleTime()
-                .domain(years)
-                .range([0, width])
-            selectOrCreate(wrap.select('.xaxis'), () => wrap.append('g').attr('class', 'xaxis'))
-                .attr('transform', `translate(0,${height})`)
-                .call(axisBottom(x))
-
-            const y = scaleLinear()
-                .domain([0, max(series, (d) => max(d.map(p => p[1])))])
-                .range([height, 0])
-            selectOrCreate(wrap.select('.yaxis'), () => wrap.append('g').attr('class', 'yaxis'))
-                .call(axisLeft(y))
-
-            wrap.selectAll('.area')
-                .data(series)
-                .join('path')
-                .attr('class', 'area')
-                .style('fill', d => palette(d.key))
-                .attr('d', area()
-                    .x(d => x(d.data.date))
-                    .y0(d => y(d[0]))
-                    .y1(d => y(d[1]))
-                )
+    useEffect(() => {
+        if (data.length === 0) {
+            return
         }
-    }, [data, colors, keys])
+        const width = ref.current.clientWidth - 60 - 10
+        const height = ref.current.clientHeight - 10 - 30
+        const wrap = select(ref.current).select('.wrap')
 
-    if (data.length === 0) {
-        return (
-            <p>Loading data...</p>
-        )
-    }
+        const keys = Object.keys(data[0].values).filter(key => key !== 'date')
+        const series = stack().keys(keys)(data.map(d => d.values))
+
+        const x = scaleTime()
+            .domain(extent(data.map(d => d.values.date)))
+            .range([0, width])
+
+        const y = scaleLinear()
+            .domain([0, max(series, (d) => max(d.map(p => p[1])))])
+            .range([height, 0])
+
+        const palette = scaleOrdinal()
+            .domain(keys)
+            .range(keys.map(k => colors[k]))
+
+        wrap.select('.xaxis').call(axisBottom(x))
+        wrap.select('.yaxis').call(axisLeft(y))
+        wrap.selectAll('.area')
+            .data(series)
+            .join('path')
+            .attr('class', 'area')
+            .style('fill', d => palette(d.key))
+            .attr('d', area()
+                .x(d => x(d.data.date))
+                .y0(d => y(d[0]))
+                .y1(d => y(d[1]))
+            )
+
+        wrap.selectAll('.year')
+            .data([frame])
+            .join(
+                enter => enter.append('rect')
+                    .attr('class', 'year')
+                    .attr('width', 3)
+                    .attr('height', height)
+                    .style('fill', 'rgba(0, 0, 0, 0.4)'),
+                update => update.call(update => update.transition()
+                    .duration(frameDuration)
+                    .ease(easeLinear)
+                    .attr('x', frame => x(data[frame].values.date))
+                ),
+                exit => exit.remove()
+            )
+
+        wrap.on('mousedown', (event) => {
+            event.preventDefault()
+            select(window)
+                .on('mousemove', (event) => {
+                    const rect = select(ref.current).node().getBoundingClientRect()
+                    const p = Math.max(Math.min(pointer(event)[0] - rect.x - 60, width - 1), 0)
+                    setFrame(Math.floor(p / width * data.length))
+                })
+                .on('mouseup', () => {
+                    select(window)
+                        .on('mousemove', null)
+                        .on('mouseup', null)
+                })
+        })
+
+    }, [data, frame, setFrame, colors])
+
     return (
-        <div className="Timeline" ref={d3ref}></div>
+        <div className="Timeline">
+            <svg ref={ref}>
+                <g className="wrap">
+                    <text className="unit">{unit}</text>
+                    <g className="xaxis"></g>
+                    <g className="yaxis"></g>
+                </g>
+            </svg>
+        </div>
     )
 }
 
