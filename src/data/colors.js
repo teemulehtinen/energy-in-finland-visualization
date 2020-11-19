@@ -1,32 +1,9 @@
-export const colors = {
-    oils: '#124E54',
-    heavyoil: '#124E54',
-    lightoil: '#00868B',
-    transportoil: '#208E97',
-    coal: '#333333',
-    naturalgas: '#75B5BE',
-    industryreactions: '#517071',
-    peat: '#888888',
-    otherfossil: '#ADADAD',
-    wood: '#6ED65C',
-    otherbio: '#C5EFBE',
-    nuclear: '#EAD977',
-    hydro: '#73D7FF',
-    wind: '#C4EEFF',
-    heatpumps: '#C4FFF3',
-    electricityimport: '#BAD1FF',
-    other: '#EEEEEE',
-    gasoline: '#208E97',
-    biogasoline: '#C5EFBE',
-    diesel: '#208E97',
-    biodiesel: '#C5EFBE',
-    lpg: '#75B5BE',
-    otheroils: '#00868B',
-    woodsmall: '#6ED65C',
-    woodindustry: '#6ED65C',
-    recoveredfossil: 'ADADAD',
-    recoveredbio: '#C5EFBE',
-    biogas: '#C5EFBE',
-    solar: '#EAD977',
-    hydrogen: '#EAD977'
+import { interpolateBuPu } from "d3"
+
+export const assignColors = (keys) => {
+    const colors = {}
+    for (let i = 0; i < keys.length; i++) {
+        colors[keys[i]] = interpolateBuPu(0.44 - 0.4 * i / keys.length)
+    }
+    return colors
 }

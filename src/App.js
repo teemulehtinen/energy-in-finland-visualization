@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import { parseConsumptionRow, consumptionKeys } from './data/consumption'
 import { parseEmissionsRow, emissionsKeys, emissionsZeroYears } from './data/emissions'
-import { rank } from './data/rank'
-import { colors } from './data/colors'
+import { pickAndRank } from './data/rank'
+import { assignColors } from './data/colors'
 import { names } from './data/names'
 import Year from './components/Year'
 import Timeline from './components/Timeline'
@@ -18,6 +18,8 @@ const App = () => {
     const [rawEmissions, setRawEmissions] = useState([])
     const [consumption, setConsumption] = useState([])
     const [emissions, setEmissions] = useState([])
+    const [consumptionColors, setConsumptionColors] = useState({})
+    const [emissionColors, setEmissionColors] = useState({})
     const [frame, setFrame] = useState(0)
     const [pause, setPause] = useState(false)
     const [filter, setFilter] = useState('all')
@@ -29,9 +31,11 @@ const App = () => {
 
     useEffect(() => {
         if (rawConsumption.length > 0 && rawEmissions.length > 0) {
-            setConsumption(rank(rawConsumption, consumptionKeys[filter], interpolationSteps))
+            setConsumption(pickAndRank(rawConsumption, consumptionKeys[filter], interpolationSteps))
             const years = [rawConsumption[0].date.getFullYear(), rawEmissions[0].date.getFullYear()]
-            setEmissions(rank(emissionsZeroYears(years[0], years[1]).concat(rawEmissions), emissionsKeys[filter], interpolationSteps))
+            setEmissions(pickAndRank(emissionsZeroYears(years[0], years[1]).concat(rawEmissions), emissionsKeys[filter], interpolationSteps))
+            setConsumptionColors(assignColors(consumptionKeys[filter]))
+            setEmissionColors(assignColors(emissionsKeys[filter]))
         }
     }, [rawConsumption, rawEmissions, filter])
 
@@ -39,13 +43,13 @@ const App = () => {
         <div className="App">
             <div className="left column">
                 <h1>Energy consumption by source</h1>
-                <BarChartRace data={consumption} frame={frame} setFrame={setFrame} pause={pause} names={names} colors={colors}></BarChartRace>
-                <Timeline unit="TJ" data={consumption} frame={frame} setFrame={setFrame} colors={colors}></Timeline>
+                <BarChartRace data={consumption} frame={frame} setFrame={setFrame} pause={pause} names={names} colors={consumptionColors}></BarChartRace>
+                <Timeline unit="TJ" data={consumption} frame={frame} setFrame={setFrame} keys={consumptionKeys[filter]} colors={consumptionColors}></Timeline>
             </div>
             <div className="right column">
                 <h1>Energy sector carbon dioxide emissions</h1>
-                <BarChartRace data={emissions} frame={frame} setFrame={setFrame} pause={pause} names={names} colors={colors} reverse={true}></BarChartRace>
-                <Timeline unit="10⁹ CO₂" data={emissions} frame={frame} setFrame={setFrame} colors={colors}></Timeline>
+                <BarChartRace data={emissions} frame={frame} setFrame={setFrame} pause={pause} names={names} colors={emissionColors} reverse={true}></BarChartRace>
+                <Timeline unit="10⁹ CO₂" data={emissions} frame={frame} setFrame={setFrame} keys={emissionsKeys[filter]} colors={emissionColors}></Timeline>
             </div>
             <div className="center">
                 <Year data={consumption} frame={frame} pause={pause} setPause={setPause} setFilter={setFilter}></Year>

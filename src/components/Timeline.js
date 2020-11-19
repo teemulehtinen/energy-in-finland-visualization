@@ -1,7 +1,7 @@
 import { area, axisBottom, axisLeft, easeLinear, extent, max, pointer, scaleLinear, scaleOrdinal, scaleTime, select, stack } from "d3"
 import { useEffect, useRef } from "react"
 
-const Timeline = ({unit, data, frame, setFrame, colors}) => {
+const Timeline = ({unit, data, frame, setFrame, keys, colors}) => {
     const frameDuration = 250
 
     const ref = useRef()
@@ -14,7 +14,6 @@ const Timeline = ({unit, data, frame, setFrame, colors}) => {
         const height = ref.current.clientHeight - 10 - 30
         const wrap = select(ref.current).select('.wrap')
 
-        const keys = Object.keys(data[0].values).filter(key => key !== 'date')
         const series = stack().keys(keys)(data.map(d => d.values))
 
         const x = scaleTime()
@@ -25,38 +24,24 @@ const Timeline = ({unit, data, frame, setFrame, colors}) => {
             .domain([0, max(series, (d) => max(d.map(p => p[1])))])
             .range([height, 0])
 
-        const palette = scaleOrdinal()
-            .domain(keys)
-            .range(keys.map(k => colors[k]))
-
         wrap.select('.xaxis').call(axisBottom(x))
         wrap.select('.yaxis').call(axisLeft(y))
-        wrap.selectAll('.area')
+        wrap.select('.fills').selectAll('.area')
             .data(series)
             .join('path')
             .attr('class', 'area')
-            .style('fill', d => palette(d.key))
+            .style('fill', d => colors[d.key])
             .attr('d', area()
                 .x(d => x(d.data.date))
                 .y0(d => y(d[0]))
                 .y1(d => y(d[1]))
             )
 
-        wrap.selectAll('.year')
-            .data([frame])
-            .join(
-                enter => enter.append('rect')
-                    .attr('class', 'year')
-                    .attr('width', 3)
-                    .attr('height', height)
-                    .style('fill', 'rgba(0, 0, 0, 0.4)'),
-                update => update.call(update => update.transition()
-                    .duration(frameDuration)
-                    .ease(easeLinear)
-                    .attr('x', frame => x(data[frame].values.date))
-                ),
-                exit => exit.remove()
-            )
+        wrap.select('.year').call(year => year.transition()
+            .duration(frameDuration)
+            .ease(easeLinear)
+            .attr('x', x(data[frame].values.date))
+        )
 
         wrap.on('mousedown', (event) => {
             event.preventDefault()
@@ -82,6 +67,8 @@ const Timeline = ({unit, data, frame, setFrame, colors}) => {
                     <text className="unit">{unit}</text>
                     <g className="xaxis"></g>
                     <g className="yaxis"></g>
+                    <g className="fills"></g>
+                    <rect className="year"></rect>
                 </g>
             </svg>
         </div>

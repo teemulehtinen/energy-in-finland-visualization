@@ -3,7 +3,7 @@ import { pairs } from "d3"
 const createDate = (keys, at, a, bt, b) => {
     const ip = (key, value, next) => at * value + bt * next[key]
     const entries = Object.entries(a)
-        .filter(([key, _]) => key === 'date' || keys.includes(key))
+        .filter(([key, _]) => key === 'date' || keys.includes(key))
         .map(([key, value]) => [key, key === 'date' ? new Date(ip(key, value, b)) : ip(key, value, b)])
     return {
         values: Object.fromEntries(entries),
@@ -11,7 +11,7 @@ const createDate = (keys, at, a, bt, b) => {
     }
 }
 
-export const rank = (data, keys, interpolationSteps) => {
+export const pickAndRank = (data, keys, interpolationSteps) => {
     const frames = []
     for (const [a,b] of pairs(data)) {
         for (let i = 0; i < interpolationSteps; ++i) {
@@ -20,8 +20,6 @@ export const rank = (data, keys, interpolationSteps) => {
             frames.push(createDate(keys, at, a, bt, b))
         }
     }
-    if (data.length > 0) {
-        frames.push(createDate(keys, 1, data[data.length - 1], 0, data[0]))
-    }
+    frames.push(createDate(keys, 0, data[data.length - 2], 1, data[data.length - 1]))
     return frames
 }

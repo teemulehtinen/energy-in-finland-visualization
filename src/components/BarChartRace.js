@@ -1,4 +1,4 @@
-import { easeLinear, max, range, scaleBand, scaleLinear, select } from "d3"
+import { easeLinear, format, interpolateNumber, max, range, scaleBand, scaleLinear, select } from "d3"
 import { useEffect, useRef } from "react"
 
 const BarChartRace = ({data, frame, setFrame, pause, names, colors, reverse}) => {
@@ -38,6 +38,12 @@ const BarChartRace = ({data, frame, setFrame, pause, names, colors, reverse}) =>
         const barx = reverse ? v => x(v) : _ => x(0)
         const barw = reverse ? v => Math.max(x(0) - x(v), 0) : v => Math.max(x(v) - x(0), 0)
 
+        const formatNumber = format(',d')
+        const textTween = (a, b) => {
+            const i = interpolateNumber(a, b);
+            return function (t) { this.textContent = formatNumber(i(t)) }
+        }
+
         svg.selectAll('.bar')
             .data(data[frame].rank.slice(0, barCount), ([key, _]) => key)
             .join(
@@ -67,20 +73,24 @@ const BarChartRace = ({data, frame, setFrame, pause, names, colors, reverse}) =>
             .join(
                 enter => enter.append('text')
                     .attr('class', 'label')
-                    .attr('font-family', 'sans-serif')
-                    .attr('font-size', 12)
                     .attr('text-anchor', reverse === true ? 'end' : 'start')
                     .text(([key, _]) => names[key])
                     .attr('x', textx(x(0)))
-                    .attr('y', _ => texty(height)),
+                    .attr('y', _ => texty(height))
+                    .call(text => text.append("tspan")
+                        .attr('x', textx(x(0)))
+                        .attr('dy', '1.15em')
+                    ),
                 update => update,
                 exit => exit.call(text => text.transition(transition)
                     .attr('y', _ => texty(height))
                     .remove()
+                    .call(g => g.select("tspan").tween("text", ([key, value]) => textTween((previousValue(key, value), value))))
                 )
             )
             .call(text => text.transition(transition)
                 .attr('y', (_, i) => texty(y(i)))
+                .call(g => g.select("tspan").tween("text", ([key, value]) => textTween(previousValue(key, value), value)))
             )
 
         if (!pause && frame < lastFrame) {
