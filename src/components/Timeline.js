@@ -1,7 +1,7 @@
-import { area, axisBottom, axisLeft, easeLinear, extent, max, pointer, scaleLinear, scaleOrdinal, scaleTime, select, stack } from "d3"
+import { area, axisBottom, axisLeft, easeLinear, extent, max, pointer, scaleLinear, scaleTime, select, stack } from "d3"
 import { useEffect, useRef } from "react"
 
-const Timeline = ({unit, data, frame, setFrame, keys, colors}) => {
+const Timeline = ({unit, data, frame, setFrame, keys, colors, target}) => {
     const frameDuration = 250
 
     const ref = useRef()
@@ -58,7 +58,15 @@ const Timeline = ({unit, data, frame, setFrame, keys, colors}) => {
                 })
         })
 
-    }, [data, frame, setFrame, colors])
+        if (target !== undefined) {
+            wrap.selectAll('.target')
+                .data([target])
+                .join('rect')
+                .attr('class', 'target')
+                .attr('y', d => y(d))
+        }
+
+    }, [data, frame, setFrame, keys, colors, target])
 
     return (
         <div className="Timeline">

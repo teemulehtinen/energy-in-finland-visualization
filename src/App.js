@@ -12,6 +12,8 @@ import BarChartRace from './components/BarChartRace'
 
 const App = () => {
 
+    const target2030 = 0.4 * 52.6
+
     const interpolationSteps = 3
 
     const [rawConsumption, setRawConsumption] = useState([])
@@ -49,7 +51,7 @@ const App = () => {
             <div className="right column">
                 <h1>Energy sector carbon dioxide emissions</h1>
                 <BarChartRace data={emissions} frame={frame} setFrame={setFrame} pause={pause} names={names} colors={emissionColors} reverse={true}></BarChartRace>
-                <Timeline unit="10⁹ CO₂" data={emissions} frame={frame} setFrame={setFrame} keys={emissionsKeys[filter]} colors={emissionColors}></Timeline>
+                <Timeline unit="10⁹ CO₂" data={emissions} frame={frame} setFrame={setFrame} keys={emissionsKeys[filter]} colors={emissionColors} target={target2030}></Timeline>
             </div>
             <div className="center">
                 <Year data={consumption} frame={frame} pause={pause} setPause={setPause} setFilter={setFilter}></Year>
