@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/energy-in-finland-visualization/static/css/main.29b8a253.chunk.css",
+    "main.js": "/energy-in-finland-visualization/static/js/main.6beeb07e.chunk.js",
+    "main.js.map": "/energy-in-finland-visualization/static/js/main.6beeb07e.chunk.js.map",
+    "runtime-main.js": "/energy-in-finland-visualization/static/js/runtime-main.63a83503.js",
+    "runtime-main.js.map": "/energy-in-finland-visualization/static/js/runtime-main.63a83503.js.map",
+    "static/js/2.fee92e9d.chunk.js": "/energy-in-finland-visualization/static/js/2.fee92e9d.chunk.js",
+    "static/js/2.fee92e9d.chunk.js.map": "/energy-in-finland-visualization/static/js/2.fee92e9d.chunk.js.map",
+    "static/js/3.9c5b2fd9.chunk.js": "/energy-in-finland-visualization/static/js/3.9c5b2fd9.chunk.js",
+    "static/js/3.9c5b2fd9.chunk.js.map": "/energy-in-finland-visualization/static/js/3.9c5b2fd9.chunk.js.map",
+    "index.html": "/energy-in-finland-visualization/index.html",
+    "static/css/main.29b8a253.chunk.css.map": "/energy-in-finland-visualization/static/css/main.29b8a253.chunk.css.map",
+    "static/js/2.fee92e9d.chunk.js.LICENSE.txt": "/energy-in-finland-visualization/static/js/2.fee92e9d.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.63a83503.js",
+    "static/js/2.fee92e9d.chunk.js",
+    "static/css/main.29b8a253.chunk.css",
+    "static/js/main.6beeb07e.chunk.js"
+  ]
+}
