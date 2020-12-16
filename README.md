@@ -1,6 +1,10 @@
 #### Sustainable Energy Choices of Finnish Citizens
 
-Statistics Finland publishes yearly, detailed data on energy consumption and related greenhouse gas emissions in Finland. We visualize this data from 1960 to 2018 using a double bar chart race and a timeline control. User can investigate timely trends with focus on heat production, electricity generation, or transport fuels.
+Statistics Finland publishes yearly, detailed data on energy consumption by source and related greenhouse
+gas emissions by fuel in Finland. The consumption and emission sources have different correlations between
+them. We visualize two adjacent bar chart races where consumption and emission sources race from 1960
+to 2018. This double bar chart race is controlled by timeline below. User can investigate timely trends with
+focus on heat production, electricity generation, or transport fuels.
 
 ###### Published
 
