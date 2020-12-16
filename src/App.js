@@ -72,7 +72,7 @@ const App = () => {
           {filter === 'electricity' &&
             <p>Excludes electricity from combined heat production.</p>
           }
-          <p className="red">Rough target level at 2030</p>
+          <div className="red-level">Rough target<br />level at 2030</div>
         </div>
       </div>
       <footer>

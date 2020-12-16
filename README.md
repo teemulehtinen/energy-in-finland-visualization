@@ -12,7 +12,9 @@ Statistics Finland publishes yearly, detailed data on energy consumption and rel
 
 ###### Technology
 
-* https://reactjs.org/
-* https://d3js.org/
+This is a [React](https://reactjs.org/) project including visualization components employing [d3js](https://d3js.org/). Normal procedures apply:
 
-This is part of course work for CS-E4450 Explorative Information Visualization.
+1. Install [Node.js](https://nodejs.org/) including `npm`
+2. `npm install` to fetch and install required libraries inside the project
+3. `npm start` to start testing locally in browser
+4. `npm run build` to build deployment files

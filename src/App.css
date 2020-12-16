@@ -54,7 +54,10 @@
 .Year select {
     font-size: 1.4em;
 }
-.red {
+.red-level {
+    position: absolute;
+    top: 420px;
+    width: 100%;
     color: rgba(255, 0, 0, 0.4);
 }
 footer {
