@@ -54,9 +54,15 @@
 .Year select {
     font-size: 1.4em;
 }
+.red {
+    color: rgba(255, 0, 0, 0.4);
+}
+footer {
+    text-align: center;
+}
 .transparency {
     margin-top: 720px;
-    font-size: 2em;
+    font-size: 1em;
     background: none;
     border: none;
     cursor: pointer;
@@ -101,4 +107,26 @@
 .BarChartRace .label tspan {
     font-weight: normal;
     font-size: 12pt;
+}
+
+.dialog-shadow {
+    position: absolute;
+    z-index: 500;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.2);
+}
+.dialog-box {
+    width: 50%;
+    margin: 3em auto;
+    border: 1px solid grey;
+    border-radius: 0.5em;
+    background: #f0f0f0;
+    padding: 0.5em 2em;
+}
+.dialog-close {
+    float: right;
+    margin-right: -1.8em;
 }
